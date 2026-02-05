@@ -2,19 +2,47 @@
 # 1) the residence time for specific sampling points (alpha) (minutes)
 # 2) the percentage recovery (rho)
 
+# ** Brief description of model **
+# - Assuming a impulse-response model...
+# - an amount (impulse) is deposited in the sewer network, upstream
+# - this is then detected downstream, as a response
+# - the response is assumed to take the form of a Gaussian distribution,
+# - with mean "alpha" and variance "alpha_v"
+
 # assumptions in the model...
-# we know the residence time (alpha)
+# we know the residence time (alpha), assume minutes
 # the recovery is 1.00
 # the distribution of alpha is normal
 
+library(ggplot2)
+
+# Assumptions of the impulse
 impulse <- 1E+100
 alpha <- 90
-alpha_v <- 1
+alpha_v <- 50
 t_max <- 180
+
+# assumptions for the sampling
 samp <- 10 # maximum number of samples
+samp_dur <- 1 # duration of the sampling
+
+# simple plot of normal dist
+t <- seq(20,t_max,1)
+ty <- dnorm(t,alpha,sd=sqrt(alpha_v))
+
+dat <- data.frame(t,ty)
+
+p1 <- ggplot(dat,aes(x=t,y=ty)) + geom_line() + 
+  geom_vline(xintercept = c(60,120,180),lty=2,col="grey50") +
+  labs(title="Impulse-response model",x ="Time post-impulse (mins)", y = "Quantity (proportion)")
+p1
+
+# so let's optimistically hope that all the tracer will be shed within about 1 hour
+# - this corresponds to about alpha_v = 50
+
 
 # 1 - simulate our output response
-# - simulate our data collection
+# - simulate our data collection (x)
 x <- floor(seq(1,t_max,length.out=samp))
 
 # here we want to have a value of the impulse that will be present in
@@ -23,7 +51,7 @@ x <- floor(seq(1,t_max,length.out=samp))
 # - time is continuous! (or split into segments)
 # - diluation is going to happen in the water and we
 #   need to account for this!
-y <- dnorm(x,alpha,sd=sqrt(alpha_v))*impulse
+y <- dnorm(x,alpha,sd=sqrt(alpha_v))
 
 plot(x,y)
 
