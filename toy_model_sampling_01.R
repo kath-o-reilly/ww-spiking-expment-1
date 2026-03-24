@@ -19,10 +19,10 @@ setwd("~/Documents/GitHub/ww-spiking-expment-1")
 library(ggplot2)
 
 # Assumptions of the impulse
-impulse <- 1E+100
-alpha <- 90
-alpha_v <- 50
-t_max <- 180
+impulse <- 1
+alpha <- 100
+alpha_v <- 1.2
+t_max <- 60*5
 
 # assumptions for the sampling
 samp <- 10 # maximum number of samples
@@ -31,15 +31,17 @@ samp_dur <- 1 # duration of the sampling
 # simple plot of normal dist
 # ty - the distribution of impulse once deposited, asssuming a average post-impulse time of alpha
 
-t <- seq(20,t_max,1)
-ty <- dnorm(t,alpha,sd=sqrt(alpha_v))
+t <- seq(0,t_max,1)
+ty <- dlnorm(t,log(alpha),sd=log(sqrt(alpha_v)))
 
 dat <- data.frame(t,ty)
 
 p1 <- ggplot(dat,aes(x=t,y=ty)) + geom_line() + 
-  geom_vline(xintercept = c(60,120,180),lty=2,col="grey50") +
+  geom_vline(xintercept = seq(60,t_max,60),lty=2,col="grey50") +
   labs(title="Impulse-response model",x ="Time post-impulse (mins)", y = "Quantity (proportion)")
 p1
+
+ggsave("impulse_response.png",p1,height=5,width=6)
 
 # so let's optimistically hope that all the tracer will be shed within about 1 hour
 # - this corresponds to about alpha_v = 50
