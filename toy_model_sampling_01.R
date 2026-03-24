@@ -14,6 +14,8 @@
 # the recovery is 1.00
 # the distribution of alpha is normal
 
+setwd("~/Documents/GitHub/ww-spiking-expment-1")
+
 library(ggplot2)
 
 # Assumptions of the impulse
@@ -27,6 +29,8 @@ samp <- 10 # maximum number of samples
 samp_dur <- 1 # duration of the sampling
 
 # simple plot of normal dist
+# ty - the distribution of impulse once deposited, asssuming a average post-impulse time of alpha
+
 t <- seq(20,t_max,1)
 ty <- dnorm(t,alpha,sd=sqrt(alpha_v))
 
