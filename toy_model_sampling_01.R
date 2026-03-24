@@ -20,9 +20,9 @@ library(ggplot2)
 
 # Assumptions of the impulse
 impulse <- 1
-alpha <- 100
-alpha_v <- 1.2
-t_max <- 60*5
+alpha <- 60*12
+alpha_v <- 3
+t_max <- 60*24*3
 
 # assumptions for the sampling
 samp <- 10 # maximum number of samples
@@ -31,17 +31,42 @@ samp_dur <- 1 # duration of the sampling
 # simple plot of normal dist
 # ty - the distribution of impulse once deposited, asssuming a average post-impulse time of alpha
 
+time_impulse <- 10 # ie. 10 am
 t <- seq(0,t_max,1)
 ty <- dlnorm(t,log(alpha),sd=log(sqrt(alpha_v)))
 
-dat <- data.frame(t,ty)
+# need to add time pre-impulse
+t_star <- c(seq(0,time_impulse*60,1),t[2:length(t)]+(time_impulse*60))
+ty_star <- c(rep(0,time_impulse*60),ty)
+  
+dat <- data.frame(t_star,ty_star)
 
-p1 <- ggplot(dat,aes(x=t,y=ty)) + geom_line() + 
+p1 <- ggplot(dat,aes(x=t_star,y=ty_star)) + geom_line() +
+  geom_vline(xintercept = time_impulse*60,lty=1,lwd=1,col="green3") +
+  geom_vline(xintercept = seq(60*24,t_max,60*24)+1,lty=1,col="red4") +
   geom_vline(xintercept = seq(60,t_max,60),lty=2,col="grey50") +
-  labs(title="Impulse-response model",x ="Time post-impulse (mins)", y = "Quantity (proportion)")
+  labs(title="Impulse-response model",x ="Time post-impulse (mins)", y = "Quantity (proportion)") +
+  xlim(0,3*24*60)
+
 p1
 
-ggsave("impulse_response.png",p1,height=5,width=6)
+ggsave("impulse_response.png",p1,height=5,width=6,units = c("cm"))
+
+# assume that samples are taken x6 on first day, x2 on second and third.
+ss <- c((seq(1:6)+10)*60,(24+10)*60,(24+11)*60,(24+24+10)*60,(24+24+11)*60) # sampling times
+oo <- match(ss,dat$t_star)
+yy <- dat$ty_star[oo] # these are our samples
+tmp <- data.frame(ss,yy)
+
+p1a <- ggplot(dat,aes(x=t_star,y=ty_star)) + geom_line() +
+  geom_vline(xintercept = time_impulse*60,lty=1,lwd=1,col="green3") +
+  geom_vline(xintercept = seq(60*24,t_max,60*24)+1,lty=1,col="red4") +
+  geom_vline(xintercept = seq(60,t_max,60),lty=2,col="grey50") +
+  geom_point(data=tmp,aes(ss,yy),pch=15,col="blue") +
+  labs(title="Impulse-response model",x ="Time post-impulse (mins)", y = "Quantity (proportion)") +
+  xlim(0,3*24*60)
+
+p1a
 
 # so let's optimistically hope that all the tracer will be shed within about 1 hour
 # - this corresponds to about alpha_v = 50
