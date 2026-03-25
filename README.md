@@ -25,5 +25,5 @@ the mean and variance of the distribution, based on estimating these parameters 
 In this example we assume that the impulse is deposited at 10am (green line), and sampling consists of x6 hourly samples for the first day, followed by x2 samples on the second and third day post-impulse, totalling 10 samples (blue squares).
 We assume that the response has mean of 12 hours and variance 30 mins; this corresponds to the peak happening at 10pm on the first day.
 
-![](figs/impulse_response_10am_m12h_v1.png)
+![](figs/impulse_response_10am_m12_v1.png)
 
