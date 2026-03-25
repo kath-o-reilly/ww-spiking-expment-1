@@ -21,7 +21,7 @@ library(ggplot2)
 # Assumptions of the impulse
 impulse <- 1
 alpha <- 60*12
-alpha_v <- 3
+alpha_v <- 50000
 t_max <- 60*24*3
 
 # assumptions for the sampling
@@ -33,7 +33,8 @@ samp_dur <- 1 # duration of the sampling
 
 time_impulse <- 10 # ie. 10 am
 t <- seq(0,t_max,1)
-ty <- dlnorm(t,log(alpha),sd=log(sqrt(alpha_v)))
+#ty <- dlnorm(t,log(alpha),sd=log(sqrt(alpha_v)))
+ty <- dnorm(t,alpha,sd=sqrt(alpha_v))
 
 # need to add time pre-impulse
 t_star <- c(seq(0,time_impulse*60,1),t[2:length(t)]+(time_impulse*60))
@@ -67,6 +68,24 @@ p1a <- ggplot(dat,aes(x=t_star,y=ty_star)) + geom_line() +
   xlim(0,3*24*60)
 
 p1a
+
+fit_fun <- function(t,y,mu,var){
+   y_theta <- dnorm(t,mu,sd=sqrt(var))
+   # compare
+   sum(((y_theta-y)^2)/y)
+   #sum(dnorm(y_theta,y,1))
+}
+
+fit_fun(tmp$ss,tmp$yy,500,5000)
+
+out <- data.frame(expand.grid(mu_vals=seq(500,800,50),var_vals=seq(20000,80000,5000)))
+out$fit <- 0
+for(i in 1:dim(out)[1]){
+  out$fit[i] <- fit_fun(tmp$ss,tmp$yy,out$mu_vals[i],out$var_vals[i])
+}
+  
+ggplot(out,aes(x=mu_vals/60,y=var_vals/60,fill=fit)) + geom_tile()
+
 
 # so let's optimistically hope that all the tracer will be shed within about 1 hour
 # - this corresponds to about alpha_v = 50
